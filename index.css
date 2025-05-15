@@ -167,11 +167,11 @@ body {
 }
 
 .folder-icon {
-    background-image: url('img/folder.svg');
+    background-image: url('./img/folder.svg');
 }
 
 .file-icon {
-    background-image: url('img/file.svg');
+    background-image: url('./img/file.svg');
 }
 
 .empty-state {
@@ -215,19 +215,15 @@ body {
 
 .file-item {
     justify-content: flex-start;
-    /* 调整内容对齐方式 */
 }
 
 .checkbox {
     margin-right: 10px;
-    /* 复选框右侧间距 */
     margin-left: 0;
-    /* 移除左侧间距 */
 }
 
 .header {
     justify-content: space-between;
-    /* 调整头部布局 */
 }
 
 .breadcrumbs-container {
