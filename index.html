@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haumea | Minecraft Assets & Data Index</title>
+    <script src="index.js" type="module"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class="header" style="text-align:center;display:block;">
+        <h1>Haumea | Minecraft Assets & Data Index</h1>
+    </div>
+    <div class="header">
+        <label style="font-size:20px;font-weight:bold;display:inline-block;">Minecraft Version:</label>
+        <select name="mcVersion" id="mcVersion" onchange="switchVersion()" value="loading">
+            <option value="loading">Loading...</option>
+        </select>
+        <div>
+            <input type="checkbox" id="unzip-jar" checked>
+            <label for="unzip-jar">Unzip MC Jar</label>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Here..."
+                oninput="reloadFileList()">
+        </div>
+        <div class="sort-container">
+            <label class="sort-label" onchange="reloadFileList()">Sort:</label>
+            <select id="sortSelect" class="sort-select">
+                <option value="type-asc">Ascending</option>
+                <option value="type-desc">Decending</option>
+            </select>
+        </div>
+        <button id="downloadBtn" class="download-btn" onclick="handleDownloadAll()">Download</button>
+    </div>
+    <div class="header">
+        <div class="breadcrumbs-container">
+            <button id="backBtn" class="back-button" onclick="goBack()">
+                <span class="back-icon"></span>Back
+            </button>
+            <div class="breadcrumbs" id="breadcrumbs"></div>
+        </div>
+    </div>
+    <div class="file-list" id="fileListContainer"></div><br>
+    <div class="header" style="text-align:center;display:block;">
+        <div>
+            Copyright <a href="https://www.iafenvoy.com">IAFEnvoy</a>,
+            <a href="https://github.com/MCDev-Tech/Haumea/blob/main/LICENSE">All Right Reserved</a>
+        </div>
+    </div>
+    <div id="contentModal" class="modal">
+        <div class="modal-content">
+            <div class="file-info">
+                <span id="fileNameDisplay" style="font-size:28px;font-weight:bold;user-select:text;"></span>
+                <span class="close">&times;</span>
+            </div>
+            <div class="scroll-container">
+                <div id="fileDisplay" class="file-display scroll-content"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
