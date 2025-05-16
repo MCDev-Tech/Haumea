@@ -62,7 +62,7 @@ window.goBack = _ => {
 function renderFileList() {
     fileListContainer.innerHTML = ''
     if (state.isLoading) {
-        fileListContainer.appendChild(createLoadingOverlay())
+        fileListContainer.appendChild(createLoadingOverlay(state.loadingMessage))
         return
     }
     if (state.currentFiles.length === 0) {
@@ -148,6 +148,7 @@ function addBreadcrumbItem(path, name, isLast = false) {
 }
 
 export async function navigateToPath(path) {
+    state.selectedFiles.clear()
     setState({ currentPath: path })
     updateBackButtonState()
     setState({ isLoading: true, loadingMessage: 'Loading Files...' })
@@ -162,15 +163,7 @@ const onClickObject = async (targetFile, checkbox) => {
 const onDoubleClickObject = async targetFile => {
     if (targetFile.type === 'folder')
         navigateToPath(state.currentPath === '/' ? `/${targetFile.name}` : `${state.currentPath}/${targetFile.name}`)
-    else {
-        let { data, path } = targetFile
-        if (data.type == 'index') {
-            let mcVersion = document.getElementById('mcVersion').value
-            let hash = data.hash
-            data.blob = await pullCache(mcVersion, path, hash)
-        }
-        displayContent(targetFile.name, data.blob)
-    }
+    else displayContent(targetFile)
 }
 
 const downloadAll = async files => {
@@ -178,10 +171,10 @@ const downloadAll = async files => {
     console.log('开始下载文件:', [...files])
     let mcVersion = document.getElementById('mcVersion').value
     for (let { path, data } of files.filter(x => x.data.type == 'index'))
-        data.blob = await pullCache(mcVersion, path, data.hash)
+        data.blob = await pullCache(mcVersion, path, data.url)
     await packDownload(files.map(x => {
         let path = x.path.replace(state.currentPath)
-        return { path: path, data: x.data.blob }
+        return { path: path, data: x.data.blob, name: x.name }
     }))
     state.selectedFiles.clear()
     updateDownloadButtonState()
@@ -196,14 +189,14 @@ const updateDownloadButtonState = _ => {
     downloadBtn.disabled = state.selectedFiles.size === 0
 }
 
-const createLoadingOverlay = _ => {
+export function createLoadingOverlay(text) {
     const overlay = document.createElement('div')
     overlay.className = 'loading-overlay'
     const spinner = document.createElement('div')
     spinner.className = 'spinner'
     const message = document.createElement('div')
     message.className = 'loading-message'
-    message.textContent = state.loadingMessage
+    message.textContent = text
     overlay.appendChild(spinner)
     overlay.appendChild(message)
     return overlay

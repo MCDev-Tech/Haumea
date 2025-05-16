@@ -50,16 +50,23 @@ function updatePopupPositions() {
 }
 
 export async function packDownload(files) {
-    const zip = new JSZip();
-    for (let { path, data } of files) zip.file(path, data)
-    const content = await zip.generateAsync({ type: 'blob' });
+    let content, fileName
+    if (files.length == 1) {
+        content = files[0].data
+        fileName = files[0].name
+    } else {
+        const zip = new JSZip()
+        for (let { path, data } of files) zip.file(path, data)
+        content = await zip.generateAsync({ type: 'blob' })
+        fileName = `assets-${Date.now()}.zip`
+    }
     // 创建下载链接并触发点击
-    const url = URL.createObjectURL(content);
-    const a = document.createElement('a');
+    const url = URL.createObjectURL(content)
+    const a = document.createElement('a')
     a.href = url;
-    a.download = `assets-${Date.now()}.zip`;
-    document.body.appendChild(a);
-    a.click();
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
 }
 
 export async function proxyFetch(url) {

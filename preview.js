@@ -1,3 +1,5 @@
+import { pullCache } from "./assets";
+import { createLoadingOverlay } from "./filelist";
 import { postError, postErrorMessage, proxyFetch } from "./util";
 
 const modal = document.getElementById('contentModal');
@@ -23,20 +25,19 @@ window.onclick = (event) => {
  * @param {string} fileName - 文件名，用于判断文件类型
  * @param {Blob|string} content - 文件内容，可以是Blob对象或URL字符串
  */
-export async function displayContent(fileName, content) {
-    fileNameDisplay.textContent = 'Preview: ' + fileName;
-    const fileType = getFileType(fileName);
+export async function displayContent(file) {
+    let { name, data, path } = file
+    fileNameDisplay.textContent = 'Preview: ' + name;
+    const fileType = getFileType(name);
 
     modal.style.display = "block";
     try {
-        console.log(content)
-        if (content instanceof Blob) await displayBlobContent(content, fileType);
-        else if (typeof content === 'string') await displayUrlContent(content, fileType);
+        if (data.type == 'direct') await displayBlobContent(data.blob, fileType);
+        else if (data.type == 'index') await displayUrlContent(data, path, fileType);
         else postErrorMessage('Unsupported data type')
     } catch (error) {
         console.error('Failed to display content:', error);
-        if (typeof content === 'string')
-            fileDisplay.innerHTML = `<div class="text-content">Cannot display content: ${error.message}</div><br><a href="${content}" download>Click to download</a></div>`;
+        fileDisplay.innerHTML = `<div class="text-content">Cannot display content: ${error.message}</div>`;
         postError(error)
     }
 }
@@ -82,15 +83,19 @@ async function displayBlobContent(blob, fileType) {
  * @param {string} url 
  * @param {string} fileType 
  */
-async function displayUrlContent(url, fileType) {
+async function displayUrlContent(data, path, fileType) {
     if (fileType === 'picture')
-        fileDisplay.innerHTML = `<img src="${url}">`;
+        fileDisplay.innerHTML = `<img src="${data.url}">`;
     else if (fileType === 'sound')
-        fileDisplay.innerHTML = `<audio controls><source src="${url}">Your browser don't support audio</audio>`;
+        fileDisplay.innerHTML = `<audio controls><source src="${data.url}">Your browser don't support audio</audio>`;
     else {
-        const response = await proxyFetch(url);
-        const text = await response.text();
-        displayTextWithLineNumbers(text);
+        let overlay = createLoadingOverlay('Loading content...')
+        let fileDisplay = document.getElementById('fileDisplay')
+        fileDisplay.appendChild(overlay)
+        let mcVersion = document.getElementById('mcVersion').value
+        data.blob = await pullCache(mcVersion, path, data.url)
+        fileDisplay.removeChild(overlay)
+        displayTextWithLineNumbers(await data.blob.text())
     }
 }
 

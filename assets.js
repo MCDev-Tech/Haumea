@@ -5,8 +5,8 @@ import { postError, proxyFetch } from "./util"
 export let mcVersions = {}, latestVersion
 let filesByVersion = {}
 
-export async function pullCache(mcVersion, path, hash) {
-    let blob = await proxyFetch(`https://resources.download.minecraft.net/${hash.slice(0, 2)}/${hash}`).then(res => res.blob()).catch(postError)
+export async function pullCache(mcVersion, path, url) {
+    let blob = await proxyFetch(url).then(res => res.blob()).catch(postError)
     filesByVersion[mcVersion][path] = { type: 'direct', blob: blob }
     return blob
 }
@@ -49,7 +49,14 @@ const resolveAssetsIndex = async url => {
     updateLoadingMessage('Downloading assets index...')
     const index = await proxyFetch(url).then(res => res.json()).catch(postError)
     let assets = {}
-    Object.keys(index.objects).forEach(x => assets['/assets/' + x] = { type: 'index', hash: index.objects[x].hash })
+    Object.keys(index.objects).forEach(x => {
+        let hash = index.objects[x].hash
+        assets['/assets/' + x] = {
+            type: 'index',
+            hash: hash,
+            url: `https://resources.download.minecraft.net/${hash.slice(0, 2)}/${hash}`
+        }
+    })
     return assets
 }
 
