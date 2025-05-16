@@ -64,6 +64,6 @@ export async function packDownload(files) {
 
 export async function proxyFetch(url) {
     if (url.startsWith('https://resources.download.minecraft.net'))
-        url = 'https://proxy.corsfix.com/?' + url
+        url = url.replace('https://resources.download.minecraft.net', 'https://proxy.mcdev.tech/mc-resource')
     return await fetch(url).catch(postError)
 }
